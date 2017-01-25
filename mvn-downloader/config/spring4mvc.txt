@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <mvc:annotation-driven/>
+
+    <!--
+        <context:component-scan base-package="xxx.controller"/>
+
+        <mvc:resources mapping="/resources/**" location="/resources/"/>
+        <mvc:default-servlet-handler/>
+
+        <bean
+                id="jspViewResolver"
+                class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+                p:viewClass="org.springframework.web.servlet.view.JstlView"
+                p:contentType="text/html; charset=UTF-8"
+                p:prefix="/WEB-INF/views/"
+                p:suffix=".jsp"
+                p:order="2"
+        />
+
+        <bean
+                id="ftlViewResolver"
+                class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver"
+                p:contentType="text/html; charset=UTF-8"
+                p:suffix=".ftl"
+                p:exposeSpringMacroHelpers="true"
+                p:exposeRequestAttributes="true"
+                p:exposeSessionAttributes="true"
+                p:requestContextAttribute="request"
+                p:cache="true"
+                p:order="1"
+            />
+
+        &lt;!&ndash; p:templateLoaderPath 相当于 prefix &ndash;&gt;
+        <bean
+                id="freeMarkerConfigurer"
+                class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer"
+                p:templateLoaderPath="/WEB-INF/views/"
+                p:defaultEncoding="UTF-8"
+        />
+    -->
+
+
+    <!-- 如果在 applicationContext 中配置了 AOP，那么这里不配置也没有关系 -->
+    <aop:config expose-proxy="true" proxy-target-class="false"/>
+
+    <!--
+        <bean
+                id="multipartResolver"
+                class="org.springframework.web.multipart.me.junbin.misc.CommonsMultipartResolver"
+                p:defaultEncoding="UTF-8"
+                p:maxUploadSizePerFile="10485760"
+                p:maxUploadSize="104857600"
+        />
+    -->
+
+    <!-- Enable Shiro Annotations for Spring-configured beans. Only run after the lifecycleBeanProcessor has run -->
+    <!-- 支持 Controller 层的权限注解 -->
+    <bean
+            id="mvcAdvisorAutoProxyCreator"
+            class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+            depends-on="lifecycleBeanPostProcessor"
+            p:exposeProxy="true"
+            p:proxyTargetClass="false"
+    />
+
+    <bean
+            id="mvcAdvisor"
+            class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor"
+            p:securityManager-ref="securityManager"
+    />
+
+
+</beans>

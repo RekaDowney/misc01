@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0          http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>misc01</artifactId>
+        <groupId>me.junbin.misc</groupId>
+        <version>1.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>mvn-downloader</artifactId>
+    <version>1.0</version>
+
+    <properties>
+        <skip.module.test>true</skip.module.test>
+        <!-- web config -->
+        <module.context.path>/</module.context.path>
+        <module.port>80</module.port>
+    </properties>
+
+    <dependencies>
+
+        <!-- dao -->
+        <!--
+                <dependency>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-jdbc</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>com.alibaba</groupId>
+                    <artifactId>druid</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                </dependency>
+        -->
+        <!-- dao -->
+
+        <!-- utility -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+        <!-- utility -->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- archetype 骨架生成插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-archetype-plugin</artifactId>
+                <version>2.4</version>
+            </plugin>
+
+            <!-- jetty 插件 -->
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>9.2.10.v20150310</version>
+                <configuration>
+                    <scanIntervalSeconds>10</scanIntervalSeconds>
+                    <webApp>
+                        <contextPath>${module.context.path}</contextPath>
+                    </webApp>
+                    <httpConnector>
+                        <port>${module.port}</port>
+                    </httpConnector>
+                    <stopKey>terminate</stopKey>
+                    <stopPort>7878</stopPort>
+                </configuration>
+            </plugin>
+
+            <!-- tomcat7 插件 -->
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <path>${module.context.path}</path>
+                    <port>${module.port}</port>
+                    <uriEncoding>${project.build.sourceEncoding}</uriEncoding>
+                    <server>tomcat7</server>
+                </configuration>
+            </plugin>
+
+            <!-- src/test/java 测试插件，限定方法级别可最多 10 个并行测试 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+                <configuration>
+                    <parallel>methods</parallel>
+                    <threadCount>10</threadCount>
+                    <argLine>${argLine}</argLine>
+                    <!-- 执行 mvn package 等打包、部署命令时不执行测试 -->
+                    <!-- skipTests 设置为 true 之后，所有子模块的测试都将被忽略 -->
+                    <!-- 因此不建议在父 pom 中设置该属性，而是在子模块中将 properties 中的 skipTests 属性设置为 true 来忽略子模块的测试 -->
+                    <skipTests>${skip.module.test}</skipTests>
+                </configuration>
+            </plugin>
+
+            <!-- maven 子模块 rebel.xml 自动生成插件 -->
+            <plugin>
+                <groupId>org.zeroturnaround</groupId>
+                <artifactId>jrebel-maven-plugin</artifactId>
+                <version>1.1.5</version>
+                <executions>
+                    <execution>
+                        <id>generate-rebel-xml</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+
+</project>

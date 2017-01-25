@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <context:annotation-config/>
+    <context:component-scan base-package="xxx.dao,xxx.service"/>
+
+    <context:property-placeholder file-encoding="UTF-8" location="classpath:bundle/db.properties"/>
+
+    <!-- 数据源 -->
+    <bean
+            id="dataSource"
+            class="com.alibaba.druid.pool.DruidDataSource"
+            p:url="${mysql.url}"
+            p:driverClassName="${mysql.driverClassName}"
+            p:username="${mysql.username}"
+            p:password="${mysql.password}"
+            p:minIdle="${druid.minIdle}"
+            p:maxActive="${druid.maxActive}"
+            p:testWhileIdle="${druid.testWhileIdle}"
+            init-method="init"
+            destroy-method="close"
+    />
+
+    <!-- MyBatis 的 settings 标签中的属性配置 -->
+    <bean
+            id="configuration"
+            class="org.apache.ibatis.session.Configuration"
+            p:mapUnderscoreToCamelCase="true"
+            p:defaultStatementTimeout="3000"
+    />
+
+    <!-- SqlSessionFactory -->
+    <bean
+            id="sqlSessionFactory"
+            class="org.mybatis.spring.SqlSessionFactoryBean"
+            p:dataSource-ref="dataSource"
+            p:mapperLocations="classpath:mapper/*-mapper.xml"
+            p:typeAliasesPackage="xxx.domain"
+            p:typeHandlersPackage="xxx.type.handler,org.junbin.mybatis.spring.type.handler"
+            p:configuration-ref="configuration"
+    />
+
+    <!-- MapperScannerConfigurer 会将 basePackage 下的 Mapper 接口全部代理成 MapperFactoryBean -->
+    <bean
+            id="mapperScannerConfigurer"
+            class="org.mybatis.spring.mapper.MapperScannerConfigurer"
+            p:basePackage="xxx.mapper"
+            p:sqlSessionFactoryBeanName="sqlSessionFactory"
+    />
+
+    <!-- 事务管理器 -->
+    <bean
+            id="transactionManager"
+            class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+            p:dataSource-ref="dataSource"
+    />
+
+    <!-- 启动注解式事务支持 -->
+    <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="false"/>
+
+    <!-- 不使用 CGLib，支持同类中的事务调用 -->
+    <aop:config proxy-target-class="false" expose-proxy="true"/>
+
+</beans>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+        http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+        version="2.0">
+
+    <description>自定义函数，方便一些可配置的路径修改</description>
+    <tlib-version>1.0</tlib-version>
+    <short-name>global</short-name>
+
+<!--
+    <function>
+        <name>imageMapping</name>
+        <description>获取图片映射路径，该路径映射到服务器上的某一个目录（该目录可以不在项目中）</description>
+        <function-class>me.junbin.misc.jsp.custom.util.Commons</function-class>
+        <function-signature>java.lang.String imageMapping()</function-signature>
+        <example>${commons:imageMapping}</example>
+    </function>
+
+    <function>
+        <name>normalize</name>
+        <description>将文件路径根据服务器的操作系统进行规范化</description>
+        <function-class>me.junbin.misc.jsp.custom.util.Commons</function-class>
+        <function-signature>java.lang.String normalize(java.lang.String)</function-signature>
+        <example>${commons:normalize("C:/Users/Public/Documents")}</example>
+    </function>
+-->
+
+</taglib>

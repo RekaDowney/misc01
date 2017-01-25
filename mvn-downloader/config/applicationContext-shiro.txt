@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean
+            id="sessionIdGenerator"
+            class="org.apache.shiro.session.mgt.eis.JavaUuidSessionIdGenerator"
+    />
+
+    <bean
+            id="sessionIdCookie"
+            class="org.apache.shiro.web.servlet.SimpleCookie"
+            p:name="shiroCookie"
+            p:maxAge="1800000"
+    />
+
+    <bean
+            id="sessionDAO"
+            class="org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO"
+            p:sessionIdGenerator-ref="sessionIdGenerator"
+    />
+
+
+    <bean
+            id="sessionValidationScheduler"
+            class="org.apache.shiro.session.mgt.quartz.QuartzSessionValidationScheduler"
+            p:sessionValidationInterval="1800000"
+            p:sessionManager-ref="sessionManager"
+    />
+
+    <bean
+            id="sessionManager"
+            class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager"
+            p:globalSessionTimeout="1800000"
+            p:deleteInvalidSessions="true"
+            p:sessionDAO-ref="sessionDAO"
+            p:sessionValidationSchedulerEnabled="true"
+            p:sessionValidationScheduler-ref="sessionValidationScheduler"
+            p:sessionIdCookieEnabled="true"
+            p:sessionIdCookie-ref="sessionIdCookie"
+    />
+
+    <!-- Shiro 默认会使用 Servlet 容器的 Session，可通过 sessionMode 属性来指定使用 Shiro 原生 Session -->
+    <!-- 即 <property name="sessionMode" value="native"/>，详细说明见官方文档 -->
+    <bean
+            id="securityManager"
+            class="org.apache.shiro.web.mgt.DefaultWebSecurityManager"
+            p:realm-ref="customRealm"
+            p:sessionManager-ref="sessionManager"
+    />
+
+    <bean
+            class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
+            p:staticMethod="org.apache.shiro.SecurityUtils.setSecurityManager"
+            p:arguments-ref="securityManager"
+    />
+
+    <bean
+            id="shiroFilter"
+            class="org.apache.shiro.spring.web.ShiroFilterFactoryBean"
+            p:securityManager-ref="securityManager"
+            p:loginUrl="/access/login"
+            p:unauthorizedUrl="/access/unauthorized"
+    />
+
+    <bean
+            id="lifecycleBeanPostProcessor"
+            class="org.apache.shiro.spring.LifecycleBeanPostProcessor"
+    />
+
+    <!-- 支持 Service(和 Dao) 层的权限注解 -->
+    <bean
+            id="serviceAdvisorAutoProxyCreator"
+            class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+            depends-on="lifecycleBeanPostProcessor"
+            p:exposeProxy="true"
+            p:proxyTargetClass="false"
+    />
+
+    <bean
+            id="serviceAdvisor"
+            class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor"
+            p:securityManager-ref="securityManager"
+    />
+
+</beans>

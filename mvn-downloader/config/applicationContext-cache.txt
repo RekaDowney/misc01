@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/cache
+       http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+    <context:component-scan base-package="xxx.service"/>
+
+    <!-- 开启缓存注解支持，基于接口代理 -->
+    <cache:annotation-driven mode="proxy" proxy-target-class="false" cache-manager="cacheManager"/>
+
+    <!-- Spring Cache 的缓存管理器，注意这个才是被 cache 标签中的 cache-manager 管理的 -->
+    <!-- 内部有一个 cacheManager 属性可以设置 EhCache 的缓存管理器 -->
+    <!-- 通过该属性，我们可以明确的 -->
+    <bean
+            id="cacheManager"
+            class="org.springframework.cache.ehcache.EhCacheCacheManager"
+            p:cacheManager-ref="ehcacheManager"
+    />
+
+    <!-- 生成 net.sf.ehcache.CacheManager，并不是 Spring Cache 意义上的 cacheManager -->
+    <!--
+        还是需要配置该 ehcache.xml 文件，因为如果没有配置则默认寻找 classpath 下的 ehcache.xml，
+        如果没有找到 ehcache.xml，那么将会寻找 EhCache jar 包中的 ehcache-failsafe.xml 文件
+     -->
+    <bean
+            id="ehcacheManager"
+            class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
+            p:configLocation="classpath:config/ehcache.xml"
+    />
+
+    <!-- 生成 net.sf.ehcache.Ehcache，这里的 cacheManager 指的是 EhCache 的 cacheManager -->
+    <bean
+            id="xxxCache"
+            class="org.springframework.cache.ehcache.EhCacheFactoryBean"
+            p:cacheManager-ref="ehcacheManager"
+            p:cacheName="bookStores"
+            p:maxElementsInMemory="10000"
+            p:eternal="false"
+            p:timeToIdleSeconds="300"
+            p:timeToLiveSeconds="600"
+            p:overflowToDisk="true"
+    />
+
+</beans>
